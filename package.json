@@ -16,7 +16,7 @@
     "next": "15.5.2",
     "postprocessing": "^6.37.7",
     "react": "19.1.0",
-    "react-dom": "19.1.0",
+    "react-dom": "19.1.1",
     "three": "^0.179.1"
   },
   "devDependencies": {
