@@ -1,7 +1,24 @@
 "use client";
 import { a, useSpring } from "@react-spring/three";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Text } from "@react-three/drei";
+
+const scrambleChars = "█▓▒░#@$%&*!?";
+
+function scrambleTransition(from: string, to: string, progress: number) {
+  const maxLen = Math.max(from.length, to.length);
+  return Array.from({ length: maxLen })
+    .map((_, i) => {
+      const fromCh = from[i] || " ";
+      const toCh = to[i] || " ";
+      if (progress === 1) return toCh;
+      if (progress === 0) return fromCh;
+
+      if (Math.random() < progress) return toCh;
+      return scrambleChars[Math.floor(Math.random() * scrambleChars.length)];
+    })
+    .join("");
+}
 
 export default function DepthLabel({
   positionY = 0,
@@ -11,6 +28,8 @@ export default function DepthLabel({
   fontSize: number;
 }) {
   const [hovered, setHovered] = useState(false);
+  const [scrambledName, setScrambledName] = useState("attila repka");
+  const [scrambledEmail, setScrambledEmail] = useState("contact me");
 
   const textSpring = useSpring({
     opacity_name: hovered ? 0 : 1,
@@ -21,6 +40,30 @@ export default function DepthLabel({
 
   const encoded = "YXR0aWxhQHJlcGthLmh1Cg==";
   const email = atob(encoded);
+
+  useEffect(() => {
+    let start: number | null = null;
+    let frame: number;
+
+    function animateScramble(timestamp: number) {
+      if (!start) start = timestamp;
+      const elapsed = timestamp - start;
+      const progress = Math.min(1, elapsed / 800); // 0.8s
+
+      if (hovered) {
+        setScrambledName(scrambleTransition("attila repka", "", progress));
+        setScrambledEmail(scrambleTransition("", "contact me", progress));
+      } else {
+        setScrambledName(scrambleTransition("", "attila repka", progress));
+        setScrambledEmail(scrambleTransition("contact me", "", progress));
+      }
+
+      if (progress < 1) frame = requestAnimationFrame(animateScramble);
+    }
+
+    frame = requestAnimationFrame(animateScramble);
+    return () => cancelAnimationFrame(frame);
+  }, [hovered]);
 
   return (
     <a.group
@@ -46,9 +89,8 @@ export default function DepthLabel({
           transparent
           depthWrite={false}
         />
-        attila repka
+        {scrambledName}
       </Text>
-
       <Text
         fontSize={fontSize}
         color="white"
@@ -63,7 +105,7 @@ export default function DepthLabel({
           transparent
           depthWrite={false}
         />
-        contact me
+        {scrambledEmail}
       </Text>
     </a.group>
   );
