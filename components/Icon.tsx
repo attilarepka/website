@@ -1,7 +1,7 @@
 "use client";
 import { useLoader, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
-import { useState, useRef } from "react";
+import { useRef, useState } from "react";
 
 export default function Icon({
   url,
@@ -17,15 +17,17 @@ export default function Icon({
   const texture = useLoader(THREE.TextureLoader, url);
   const meshRef = useRef<THREE.Mesh>(null!);
   const materialRef = useRef<THREE.MeshStandardMaterial>(null!);
+  const targetScale = useRef(new THREE.Vector3());
   const [hovered, setHovered] = useState(false);
   const { viewport } = useThree();
   const size = viewport.width * 0.1 * scaleFactor;
 
   useFrame(() => {
     if (meshRef.current) {
-      const targetScale = hovered ? size * 1.2 : size;
+      const scale = hovered ? size * 1.2 : size;
+      targetScale.current.setScalar(scale);
       meshRef.current.scale.lerp(
-        new THREE.Vector3(targetScale, targetScale, targetScale),
+        targetScale.current,
         0.1
       );
     }

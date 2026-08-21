@@ -1,5 +1,5 @@
 "use client";
-import { Canvas, useFrame } from "@react-three/fiber";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import {
   Bloom,
   DepthOfField,
@@ -10,7 +10,6 @@ import { DepthOfFieldEffect, GlitchMode } from "postprocessing";
 import * as THREE from "three";
 import { useRef } from "react";
 import { AdaptiveDpr, Stars } from "@react-three/drei";
-import { useThree } from "@react-three/fiber";
 import { Group } from "three";
 import Icon from "./Icon";
 import DepthLabel from "./DepthLabel";
@@ -29,7 +28,7 @@ function SceneObjects() {
   const fontSize = (aspect < 1 ? vWidth * 0.1 : vWidth * 0.08) * scaleFactor;
   const depthRef = useRef<DepthOfFieldEffect>(null!);
   const starsRef = useRef<Group>(null!);
-  let theta = 0;
+  const theta = useRef(0);
 
   useFrame(({ mouse }) => {
     const distanceFromCenter = Math.sqrt(mouse.x * mouse.x + mouse.y * mouse.y);
@@ -38,12 +37,13 @@ function SceneObjects() {
 
   useFrame((state, delta) => {
     if (starsRef.current) {
-      theta += 0.5 * delta;
+      theta.current += 0.5 * delta;
 
-      const r = 5 * Math.sin(THREE.MathUtils.degToRad(theta));
+      const r = 5 * Math.sin(THREE.MathUtils.degToRad(theta.current));
       starsRef.current.rotation.set(r, r, r);
 
-      const s = 1 + 0.05 * Math.cos(THREE.MathUtils.degToRad(theta * 2));
+      const s =
+        1 + 0.05 * Math.cos(THREE.MathUtils.degToRad(theta.current * 2));
       starsRef.current.scale.set(s, s, s);
     }
   });
