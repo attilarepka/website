@@ -1,9 +1,10 @@
 "use client";
 import { a, useSpring } from "@react-spring/three";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Text } from "@react-three/drei";
 
 const scrambleChars = "█▓▒░#@$%&*!?";
+const encodedEmail = "YXR0aWxhQHJlcGthLmh1Cg==";
 
 function scrambleTransition(from: string, to: string, progress: number) {
   const maxLen = Math.max(from.length, to.length);
@@ -38,8 +39,7 @@ export default function DepthLabel({
     config: { tension: 80, friction: 30 }
   });
 
-  const encoded = "YXR0aWxhQHJlcGthLmh1Cg==";
-  const email = atob(encoded);
+  const email = useMemo(() => atob(encodedEmail), []);
 
   useEffect(() => {
     let start: number | null = null;

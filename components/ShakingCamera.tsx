@@ -1,17 +1,18 @@
 "use client";
 import { CameraShake } from "@react-three/drei";
 import { useFrame, useThree } from "@react-three/fiber";
-import { useState } from "react";
+import { useRef } from "react";
 import * as THREE from "three";
 
+const ORIGINAL_CAMERA_Z = 5;
+
 export default function ShakingCamera() {
-  const [vec] = useState(() => new THREE.Vector3());
+  const vec = useRef(new THREE.Vector3());
   const { camera } = useThree();
-  const originalZ = 5;
 
   useFrame(() => {
-    vec.set(vec.x, vec.y, originalZ);
-    camera.position.lerp(vec, 0.05);
+    vec.current.set(vec.current.x, vec.current.y, ORIGINAL_CAMERA_Z);
+    camera.position.lerp(vec.current, 0.05);
   });
 
   return (
